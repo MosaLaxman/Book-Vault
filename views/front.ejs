@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Notes Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a href="/" class="brand">Book Vault</a>
+    <nav class="nav-links">
+      <a href="/">Library</a>
+      <a href="/books/new" class="button-link">Add Book</a>
+      <span class="user-chip"><%= currentUser.email %></span>
+      <form action="/logout" method="POST" class="inline-form">
+        <button type="submit" class="ghost-btn">Logout</button>
+      </form>
+    </nav>
+  </header>
+
+  <main class="page-wrap">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Reading journal</p>
+        <h1>Track books with useful notes, ratings, and history.</h1>
+      </div>
+      <div class="stats-grid">
+        <article class="stat-card">
+          <p>Total Books</p>
+          <h2><%= stats.totalBooks %></h2>
+        </article>
+        <article class="stat-card">
+          <p>Average Rating</p>
+          <h2><%= stats.avgRating || "-" %></h2>
+        </article>
+        <article class="stat-card">
+          <p>Latest Read</p>
+          <h2><%= stats.latestRead ? new Date(stats.latestRead).toLocaleDateString() : "-" %></h2>
+        </article>
+      </div>
+    </section>
+
+    <section class="controls-panel">
+      <form method="GET" action="/" class="controls-form">
+        <input
+          type="text"
+          name="search"
+          placeholder="Search title or author"
+          value="<%= currentSearch %>"
+        >
+        <select name="sort">
+          <option value="date_read" <%= currentSort === "date_read" ? "selected" : "" %>>Sort: Date</option>
+          <option value="rating" <%= currentSort === "rating" ? "selected" : "" %>>Sort: Rating</option>
+          <option value="title" <%= currentSort === "title" ? "selected" : "" %>>Sort: Title</option>
+          <option value="id" <%= currentSort === "id" ? "selected" : "" %>>Sort: Recent Added</option>
+        </select>
+        <select name="order">
+          <option value="desc" <%= currentOrder === "desc" ? "selected" : "" %>>Newest / Highest</option>
+          <option value="asc" <%= currentOrder === "asc" ? "selected" : "" %>>Oldest / Lowest</option>
+        </select>
+        <select name="min_rating">
+          <option value="0" <%= currentMinRating === 0 ? "selected" : "" %>>All Ratings</option>
+          <option value="3" <%= currentMinRating === 3 ? "selected" : "" %>>3+ Rating</option>
+          <option value="4" <%= currentMinRating === 4 ? "selected" : "" %>>4+ Rating</option>
+          <option value="5" <%= currentMinRating === 5 ? "selected" : "" %>>5 Only</option>
+        </select>
+        <button type="submit">Apply</button>
+      </form>
+    </section>
+
+    <% if (message) { %>
+      <section class="empty-state">
+        <h2><%= message %></h2>
+        <p>Try changing filters or add your next book.</p>
+      </section>
+    <% } else { %>
+      <section class="book-grid">
+        <% books.forEach(book => { %>
+          <article class="card">
+            <img
+              src="<%= book.cover_url %>"
+              alt="Book cover for <%= book.title %>"
+              onerror="this.src='https://via.placeholder.com/300x400?text=No+Cover'"
+            >
+            <div class="card-content">
+              <h2><%= book.title %></h2>
+              <p class="author">by <%= book.author %></p>
+              <p class="rating">Rating: <strong><%= book.rating %>/5</strong></p>
+              <p class="review"><%= book.review %></p>
+              <p class="date">Read: <%= new Date(book.date_read).toDateString() %></p>
+              <div class="card-actions">
+                <a href="/books/<%= book.id %>/edit" class="edit-link">Edit</a>
+                <form action="/books/delete" method="POST" onsubmit="return confirm('Delete this book note?');">
+                  <input type="hidden" name="deleteItemId" value="<%= book.id %>">
+                  <button class="delete-btn" type="submit">Delete</button>
+                </form>
+              </div>
+            </div>
+          </article>
+        <% }) %>
+      </section>
+    <% } %>
+  </main>
+</body>
+</html>

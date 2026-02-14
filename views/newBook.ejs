@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Book</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a href="/" class="brand">Book Vault</a>
+    <nav class="nav-links">
+      <a href="/">Library</a>
+      <span class="user-chip"><%= currentUser.email %></span>
+      <form action="/logout" method="POST" class="inline-form">
+        <button type="submit" class="ghost-btn">Logout</button>
+      </form>
+    </nav>
+  </header>
+
+  <main class="page-wrap">
+    <section class="form-shell">
+      <h1>Add New Book</h1>
+      <p>Use ISBN lookup to prefill title and author, then add your note.</p>
+
+      <form action="/books/add" method="POST" class="book-form">
+        <div class="isbn-row">
+          <input type="text" name="isbn" id="isbn" placeholder="Enter ISBN">
+          <button type="button" onclick="fetchBook()">Auto Fetch</button>
+        </div>
+
+        <p id="isbn-status" class="status-text"></p>
+
+        <input type="text" name="title" id="title" placeholder="Title" required>
+        <input type="text" name="author" id="author" placeholder="Author" required>
+        <input type="number" name="rating" min="1" max="5" placeholder="Rating (1-5)" required>
+        <textarea name="review" rows="5" placeholder="Write your review..." required></textarea>
+        <input type="date" name="date_read" required>
+
+        <button type="submit">Save Book Note</button>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    async function fetchBook() {
+      const isbn = document.getElementById("isbn").value.trim();
+      const status = document.getElementById("isbn-status");
+
+      if (!isbn) {
+        status.textContent = "Enter an ISBN first.";
+        return;
+      }
+
+      status.textContent = "Looking up book...";
+
+      try {
+        const response = await fetch(`/api/book/${isbn}`);
+        const data = await response.json();
+
+        if (data.success) {
+          document.getElementById("title").value = data.title;
+          document.getElementById("author").value = data.author;
+          status.textContent = "Book data fetched successfully.";
+        } else {
+          status.textContent = "No book found for this ISBN.";
+        }
+      } catch (error) {
+        status.textContent = "Could not fetch details right now.";
+      }
+    }
+  </script>
+</body>
+</html>
