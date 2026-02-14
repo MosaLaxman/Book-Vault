@@ -2,6 +2,9 @@
 
 A full-stack book notes app built with Express, EJS, and PostgreSQL.
 
+## Live Demo
+https://book-vault-iaaf.onrender.com/
+
 ## Features
 - User authentication (Sign Up / Sign In / Logout)
 - Server-side sessions with expiry
